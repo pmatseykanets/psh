@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/psh
+    docker: 
+      - image: conanio/clang7
+
+    steps:
+      - checkout
+      - run: make
