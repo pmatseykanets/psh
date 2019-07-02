@@ -1,4 +1,5 @@
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +43,17 @@ int psh_cd(char **args)
     if (args[1] == NULL || strcmp(path, "~") == 0)
     {
         path = getenv("HOME");
+        if (!path)
+        {
+            // Fallback to user database
+            struct passwd *user = getpwuid(getuid());
+            if (!user)
+            {
+                fprintf(stderr, "error retrieving home directory");
+                return 1;
+            }
+            path = user->pw_dir;
+        }
     }
 
     if (chdir(path) != 0)
