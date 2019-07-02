@@ -1,10 +1,15 @@
-default: build
+CC ?= /usr/bin/clang
+CFLAGS ?= -I/usr/local/opt/readline/include
+LDFLAGS ?= -L/usr/local/opt/readline/lib
+LIBS = -lreadline
 
-build:
-	clang -Wall -o psh src/psh.c src/builtin.c
+default: run
 
-run: clean build
+psh: src/psh.c src/builtin.c
+	$(CC) -Wall $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@ $?
+
+run: clean psh
 	./psh
 	
 clean:
-	rm psh
+	rm -f ./psh

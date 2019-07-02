@@ -3,46 +3,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <readline/readline.h>
 #include "psh.h"
 #include "builtin.h"
-
-char *psh_read_line(void)
-{
-    int bufsize = PSH_RL_BUFSIZE;
-    char *buffer = malloc(sizeof(char) * bufsize);
-    if (!buffer)
-    {
-        fprintf(stderr, "psh: allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-
-    int pos = 0;
-    int c;
-
-    while (1)
-    {
-        c = getchar();
-
-        if (c == EOF || c == '\n')
-        {
-            buffer[pos] = '\0';
-            return buffer;
-        }
-        buffer[pos] = c;
-        pos++;
-
-        if (pos >= bufsize)
-        {
-            bufsize += PSH_RL_BUFSIZE;
-            buffer = realloc(buffer, bufsize);
-            if (!buffer)
-            {
-                fprintf(stderr, "psh: allocation error\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
-}
 
 char **psh_split_line(char *line)
 {
@@ -141,14 +104,11 @@ void psh_loop(void)
 
     do
     {
-        printf("> ");
-
-        line = psh_read_line();
-        // puts(line);
-        free(line);
+        line = readline("> ");
         args = psh_split_line(line);
         status = psh_run(args);
-
+        
+        free(line);
         free(args);
     } while (status);
 }
